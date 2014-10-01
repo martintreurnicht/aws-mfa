@@ -72,6 +72,9 @@ class AwsMfa
         puts 'That is an invalid MFA code'
         exit 1
       end
+      ENV.delete('AWS_SECRET_ACCESS_KEY')
+      ENV.delete('AWS_ACCESS_KEY_ID')
+      ENV.delete('AWS_SESSION_TOKEN')
       credentials_raw = `aws sts get-session-token --serial-number #{arn} --token-code #{code}`
       credentials = JSON.parse(credentials_raw)
       File.open(credentials_file, 'w') { |f| f.print credentials_raw }
