@@ -1,5 +1,7 @@
 # AWS-MFA
 
+[![Code Climate](https://codeclimate.com/repos/542b7941e30ba06a6101ef2b/badges/25d9c28493f8b29398d0/gpa.svg)](https://codeclimate.com/repos/542b7941e30ba06a6101ef2b/feed)
+
 ## Introduction
 
 `aws-mfa` prepares environment variables for commands that interact with AWS. It uses [AWS STS](http://docs.aws.amazon.com/cli/latest/reference/sts/index.html) to get temporary credentials. This is necessary if you have [MFA](https://aws.amazon.com/iam/details/mfa/) enabled on your account.
