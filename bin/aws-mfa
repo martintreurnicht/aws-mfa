@@ -1,0 +1,120 @@
+#!/usr/bin/env ruby
+
+require 'json'
+
+class AwsMfa
+  def initialize
+    @aws_config_dir = validate_aws_install
+  end
+
+  def validate_aws_install
+    unless which('aws')
+      puts 'Could not find the aws command'
+      exit 1
+    end
+
+    if ENV['AWS_CREDENTIAL_FILE']
+      aws_config_file = ENV['AWS_CREDENTIAL_FILE']
+      aws_config_dir = File.dirname(aws_config_file)
+    else
+      aws_config_dir = File.join(ENV['HOME'], '.aws')
+      aws_config_file = File.join(aws_config_dir, 'config')
+    end
+
+    unless File.readable?(aws_config_file)
+      puts 'Aws configuration not found. You must run `aws cli configure`'
+      exit 1
+    end
+
+    aws_config_dir
+  end
+
+  # http://stackoverflow.com/questions/2108727/which-in-ruby-checking-if-program-exists-in-path-from-ruby
+  def which(cmd)
+    exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
+    ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
+      exts.each { |ext|
+        exe = File.join(path, "#{cmd}#{ext}")
+        return exe if File.executable? exe
+      }
+    end
+    return nil
+  end
+
+  def get_arn
+    arn_file = File.join(@aws_config_dir, 'mfa_device')
+
+    if File.readable?(arn_file)
+      arn = File.read(arn_file)
+    else
+      puts 'Fetching MFA devices for your account...'
+      mfa_devices = JSON.parse(`aws iam list-mfa-devices`).fetch('MFADevices')
+      if mfa_devices.any?
+        arn = mfa_devices.first.fetch('SerialNumber')
+        puts "Using MFA device #{arn}. To change this in the future edit #{arn_file}."
+        File.open(arn_file, 'w') { |f| f.print arn }
+      else
+        abort 'No MFA devices were found for your account'
+      end
+    end
+    arn
+  end
+
+  def get_credentials(arn)
+    credentials_file  = File.join(@aws_config_dir, 'mfa_credentials')
+
+    if File.readable?(credentials_file) && token_not_expired?(credentials_file)
+      credentials = JSON.parse(File.read(credentials_file))
+    else
+      puts 'Enter the 6-digit code from your MFA device:'
+      code = $stdin.gets.chomp
+      unless code =~ /^\d{6}$/
+        puts 'That is an invalid MFA code'
+        exit 1
+      end
+      credentials_raw = `aws sts get-session-token --serial-number #{arn} --token-code #{code}`
+      credentials = JSON.parse(credentials_raw)
+      File.open(credentials_file, 'w') { |f| f.print credentials_raw }
+    end
+
+    credentials['Credentials']
+  end
+
+  def token_not_expired?(credentials_file)
+    # default is 12 hours
+    expiration_period = 12 * 60 * 60
+    mtime = File.stat(credentials_file).mtime
+    now = Time.new
+    if now - mtime < expiration_period
+      true
+    else
+      false
+    end
+  end
+
+  def print_credentials(credentials)
+    puts "export AWS_SECRET_ACCESS_KEY='#{credentials['SecretAccessKey']}'"
+    puts "export AWS_ACCESS_KEY_ID='#{credentials['AccessKeyId']}'"
+    puts "export AWS_SESSION_TOKEN='#{credentials['SessionToken']}'"
+  end
+
+  def export_credentials(credentials)
+    ENV['AWS_SECRET_ACCESS_KEY'] = credentials['SecretAccessKey']
+    ENV['AWS_ACCESS_KEY_ID'] = credentials['AccessKeyId']
+    ENV['AWS_SESSION_TOKEN'] = credentials['SessionToken']
+  end
+
+  def execute
+    arn = get_arn
+    credentials = get_credentials(arn)
+    if ARGV.empty?
+      print_credentials(credentials)
+    else
+      export_credentials(credentials)
+      exec *ARGV
+    end
+  end
+end
+
+aws_mfa = AwsMfa.new
+aws_mfa.execute
