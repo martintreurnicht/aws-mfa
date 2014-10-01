@@ -41,7 +41,7 @@ class AwsMfa
     return nil
   end
 
-  def get_arn
+  def load_arn
     arn_file = File.join(@aws_config_dir, 'mfa_device')
 
     if File.readable?(arn_file)
@@ -105,13 +105,13 @@ class AwsMfa
   end
 
   def execute
-    arn = get_arn
+    arn = load_arn
     credentials = get_credentials(arn)
     if ARGV.empty?
       print_credentials(credentials)
     else
       export_credentials(credentials)
-      exec *ARGV
+      exec(*ARGV)
     end
   end
 end
