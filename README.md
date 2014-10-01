@@ -4,13 +4,23 @@
 
 ## Introduction
 
-`aws-mfa` prepares environment variables for commands that interact with AWS. It uses [AWS STS](http://docs.aws.amazon.com/cli/latest/reference/sts/index.html) to get temporary credentials. This is necessary if you have [MFA](https://aws.amazon.com/iam/details/mfa/) enabled on your account.
+`aws-mfa` prepares the environment for commands that interact with AWS. It uses [AWS STS](http://docs.aws.amazon.com/cli/latest/reference/sts/index.html) to get temporary credentials. This is necessary if you have [MFA](https://aws.amazon.com/iam/details/mfa/) enabled on your account. The variables it sets are 
 
-The first time you run `aws-mfa` it will request the ARN for your MFA device, which you can find under the "security credentials" tab for your user in the [IAM console](https://console.aws.amazon.com/iam/home?region=us-east-1#users). Next, it will prompt you for the 6-digit code from your MFA device. For the next 12 hours, `aws-mfa` will not prompt you for anything. After 12 hours, your temporary credentials expire, so `aws-mfa` will prompt you for the 6-digit code again.
+* AWS_SECRET_ACCESS_KEY
+* AWS_ACCESS_KEY_ID
+* AWS_SESSION_TOKEN
+
+## Installation
+
+`aws-mfa` is available via [Rubygems](https://rubygems.org/gems/aws-mfa). To install it you can run `gem install aws-mfa`.
+
+Before using `aws-mfa`, you must have the [AWS CLI](https://aws.amazon.com/cli/) installed (through whatever [method](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) you choose) and configured (through `aws configure`).
 
 ## Usage
 
-There are two ways you can use `aws-mfa`.
+The very first time you run `aws-mfa` it will fetch the ARN for your MFA device and ask you to confirm it. Next, it will prompt you for the 6-digit code from your MFA device. For the next 12 hours, `aws-mfa` will not prompt you for anything. After 12 hours, your temporary credentials expire, so `aws-mfa` will prompt you for the 6-digit code again.
+
+There are two ways you can use `aws-mfa`:
 
 ### Eval
 
