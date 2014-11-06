@@ -75,6 +75,7 @@ class AwsMfa
       ENV.delete('AWS_SECRET_ACCESS_KEY')
       ENV.delete('AWS_ACCESS_KEY_ID')
       ENV.delete('AWS_SESSION_TOKEN')
+      ENV.delete('AWS_SECURITY_TOKEN')
       credentials_raw = `aws sts get-session-token --serial-number #{arn} --token-code #{code}`
       credentials = JSON.parse(credentials_raw)
       File.open(credentials_file, 'w') { |f| f.print credentials_raw }
@@ -99,12 +100,14 @@ class AwsMfa
     puts "export AWS_SECRET_ACCESS_KEY='#{credentials['SecretAccessKey']}'"
     puts "export AWS_ACCESS_KEY_ID='#{credentials['AccessKeyId']}'"
     puts "export AWS_SESSION_TOKEN='#{credentials['SessionToken']}'"
+    puts "export AWS_SECURITY_TOKEN='#{credentials['SessionToken']}'"
   end
 
   def export_credentials(credentials)
     ENV['AWS_SECRET_ACCESS_KEY'] = credentials['SecretAccessKey']
     ENV['AWS_ACCESS_KEY_ID'] = credentials['AccessKeyId']
     ENV['AWS_SESSION_TOKEN'] = credentials['SessionToken']
+    ENV['AWS_SECURITY_TOKEN'] = credentials['SessionToken']
   end
 
   def execute
