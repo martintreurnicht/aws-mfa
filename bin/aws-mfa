@@ -12,8 +12,7 @@ class AwsMfa
 
   def validate_aws_installed
     unless which('aws')
-      puts 'Could not find the aws command'
-      exit 1
+      abort 'Could not find the aws command'
     end
   end
 
@@ -27,8 +26,7 @@ class AwsMfa
     end
 
     unless File.readable?(aws_config_file)
-      puts 'Aws configuration not found. You must run `aws cli configure`'
-      exit 1
+      abort 'Aws configuration not found. You must run `aws cli configure`'
     end
 
     aws_config_dir
@@ -109,8 +107,7 @@ class AwsMfa
     puts 'Enter the 6-digit code from your MFA device:'
     code = $stdin.gets.chomp
     unless code =~ /^\d{6}$/
-      puts 'That is an invalid MFA code'
-      exit 1
+      abort 'That is an invalid MFA code'
     end
     code
   end
