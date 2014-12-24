@@ -50,19 +50,32 @@ class AwsMfa
     arn_file = File.join(aws_config_dir, 'mfa_device')
 
     if File.readable?(arn_file)
-      arn = File.read(arn_file)
+      arn = load_arn_from_file(arn_file)
     else
-      puts 'Fetching MFA devices for your account...'
-      mfa_devices = JSON.parse(`aws --output json iam list-mfa-devices`).fetch('MFADevices')
-      if mfa_devices.any?
-        arn = mfa_devices.first.fetch('SerialNumber')
-        puts "Using MFA device #{arn}. To change this in the future edit #{arn_file}."
-        File.open(arn_file, 'w') { |f| f.print arn }
-      else
-        abort 'No MFA devices were found for your account'
-      end
+      arn = load_arn_from_aws
+      write_arn_to_file(arn_file, arn)
     end
+
     arn
+  end
+
+  def load_arn_from_file(arn_file)
+    File.read(arn_file)
+  end
+
+  def load_arn_from_aws
+    puts 'Fetching MFA devices for your account...'
+    mfa_devices = JSON.parse(`aws --output json iam list-mfa-devices`).fetch('MFADevices')
+    if mfa_devices.any?
+      mfa_devices.first.fetch('SerialNumber')
+    else
+      abort 'No MFA devices were found for your account'
+    end
+  end
+
+  def write_arn_to_file(arn_file, arn)
+    File.open(arn_file, 'w') { |f| f.print arn }
+    puts "Using MFA device #{arn}. To change this in the future edit #{arn_file}."
   end
 
   def get_credentials(arn)
