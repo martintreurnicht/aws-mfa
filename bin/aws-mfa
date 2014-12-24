@@ -6,15 +6,18 @@ class AwsMfa
   attr_reader :aws_config_dir
 
   def initialize
-    @aws_config_dir = validate_aws_install
+    validate_aws_installed
+    @aws_config_dir = find_aws_config
   end
 
-  def validate_aws_install
+  def validate_aws_installed
     unless which('aws')
       puts 'Could not find the aws command'
       exit 1
     end
+  end
 
+  def find_aws_config
     if ENV['AWS_CREDENTIAL_FILE']
       aws_config_file = ENV['AWS_CREDENTIAL_FILE']
       aws_config_dir = File.dirname(aws_config_file)
