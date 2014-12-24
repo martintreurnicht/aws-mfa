@@ -78,28 +78,48 @@ class AwsMfa
     puts "Using MFA device #{arn}. To change this in the future edit #{arn_file}."
   end
 
-  def get_credentials(arn)
+  def load_credentials(arn)
     credentials_file  = File.join(aws_config_dir, 'mfa_credentials')
 
     if File.readable?(credentials_file) && token_not_expired?(credentials_file)
-      credentials = JSON.parse(File.read(credentials_file))
+      credentials = load_credentials_from_file(credentials_file)
     else
-      puts 'Enter the 6-digit code from your MFA device:'
-      code = $stdin.gets.chomp
-      unless code =~ /^\d{6}$/
-        puts 'That is an invalid MFA code'
-        exit 1
-      end
-      ENV.delete('AWS_SECRET_ACCESS_KEY')
-      ENV.delete('AWS_ACCESS_KEY_ID')
-      ENV.delete('AWS_SESSION_TOKEN')
-      ENV.delete('AWS_SECURITY_TOKEN')
-      credentials_raw = `aws --output json sts get-session-token --serial-number #{arn} --token-code #{code}`
-      credentials = JSON.parse(credentials_raw)
-      File.open(credentials_file, 'w') { |f| f.print credentials_raw }
+      credentials = load_credentials_from_aws(arn)
+      write_credentials_to_file(credentials_file, credentials)
     end
 
-    credentials['Credentials']
+    JSON.parse(credentials).fetch('Credentials')
+  end
+
+  def load_credentials_from_file(credentials_file)
+    File.read(credentials_file)
+  end
+
+  def load_credentials_from_aws(arn)
+    code = request_code_from_user
+    unset_environment
+    `aws --output json sts get-session-token --serial-number #{arn} --token-code #{code}`
+  end
+
+  def write_credentials_to_file(credentials_file, credentials)
+    File.open(credentials_file, 'w') { |f| f.print credentials }
+  end
+
+  def request_code_from_user
+    puts 'Enter the 6-digit code from your MFA device:'
+    code = $stdin.gets.chomp
+    unless code =~ /^\d{6}$/
+      puts 'That is an invalid MFA code'
+      exit 1
+    end
+    code
+  end
+
+  def unset_environment
+    ENV.delete('AWS_SECRET_ACCESS_KEY')
+    ENV.delete('AWS_ACCESS_KEY_ID')
+    ENV.delete('AWS_SESSION_TOKEN')
+    ENV.delete('AWS_SECURITY_TOKEN')
   end
 
   def token_not_expired?(credentials_file)
@@ -130,7 +150,7 @@ class AwsMfa
 
   def execute
     arn = load_arn
-    credentials = get_credentials(arn)
+    credentials = load_credentials(arn)
     if ARGV.empty?
       print_credentials(credentials)
     else
