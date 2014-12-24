@@ -48,7 +48,7 @@ class AwsMfa
       arn = File.read(arn_file)
     else
       puts 'Fetching MFA devices for your account...'
-      mfa_devices = JSON.parse(`aws iam list-mfa-devices`).fetch('MFADevices')
+      mfa_devices = JSON.parse(`aws --output json iam list-mfa-devices`).fetch('MFADevices')
       if mfa_devices.any?
         arn = mfa_devices.first.fetch('SerialNumber')
         puts "Using MFA device #{arn}. To change this in the future edit #{arn_file}."
@@ -76,7 +76,7 @@ class AwsMfa
       ENV.delete('AWS_ACCESS_KEY_ID')
       ENV.delete('AWS_SESSION_TOKEN')
       ENV.delete('AWS_SECURITY_TOKEN')
-      credentials_raw = `aws sts get-session-token --serial-number #{arn} --token-code #{code}`
+      credentials_raw = `aws --output json sts get-session-token --serial-number #{arn} --token-code #{code}`
       credentials = JSON.parse(credentials_raw)
       File.open(credentials_file, 'w') { |f| f.print credentials_raw }
     end
