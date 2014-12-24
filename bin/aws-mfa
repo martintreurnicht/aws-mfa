@@ -3,6 +3,8 @@
 require 'json'
 
 class AwsMfa
+  attr_reader :aws_config_dir
+
   def initialize
     @aws_config_dir = validate_aws_install
   end
@@ -42,7 +44,7 @@ class AwsMfa
   end
 
   def load_arn
-    arn_file = File.join(@aws_config_dir, 'mfa_device')
+    arn_file = File.join(aws_config_dir, 'mfa_device')
 
     if File.readable?(arn_file)
       arn = File.read(arn_file)
@@ -61,7 +63,7 @@ class AwsMfa
   end
 
   def get_credentials(arn)
-    credentials_file  = File.join(@aws_config_dir, 'mfa_credentials')
+    credentials_file  = File.join(aws_config_dir, 'mfa_credentials')
 
     if File.readable?(credentials_file) && token_not_expired?(credentials_file)
       credentials = JSON.parse(File.read(credentials_file))
