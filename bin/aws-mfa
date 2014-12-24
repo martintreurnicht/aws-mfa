@@ -11,9 +11,7 @@ class AwsMfa
   end
 
   def validate_aws_installed
-    unless which('aws')
-      abort 'Could not find the aws command'
-    end
+    abort 'Could not find the aws command' unless which('aws')
   end
 
   def find_aws_config
@@ -106,9 +104,7 @@ class AwsMfa
   def request_code_from_user
     puts 'Enter the 6-digit code from your MFA device:'
     code = $stdin.gets.chomp
-    unless code =~ /^\d{6}$/
-      abort 'That is an invalid MFA code'
-    end
+    abort 'That is an invalid MFA code' unless code =~ /^\d{6}$/
     code
   end
 
