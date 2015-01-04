@@ -11,6 +11,6 @@ Gem::Specification.new do |s|
   s.homepage     = 'http://www.github.com/lonelyplanet/aws-mfa'
   s.license      = 'Apache-2.0'
   s.requirements = ['aws-cli']
-  s.add_development_dependency 'rspec'
-  s.add_development_dependency 'fakefs'
+  s.add_development_dependency 'rspec', '~> 3.1'
+  s.add_development_dependency 'fakefs', '~> 0.6'
 end
