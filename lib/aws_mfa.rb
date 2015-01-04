@@ -59,12 +59,16 @@ class AwsMfa
 
   def load_arn_from_aws
     puts 'Fetching MFA devices for your account...'
-    mfa_devices = JSON.parse(`aws --output json iam list-mfa-devices`).fetch('MFADevices')
+    mfa_devices = list_mfa_devices
     if mfa_devices.any?
       mfa_devices.first.fetch('SerialNumber')
     else
       abort 'No MFA devices were found for your account'
     end
+  end
+
+  def list_mfa_devices
+    JSON.parse(`aws --output json iam list-mfa-devices`).fetch('MFADevices')
   end
 
   def write_arn_to_file(arn_file, arn)
