@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'json'
 require 'aws_mfa'
 
 aws_mfa = AwsMfa.new

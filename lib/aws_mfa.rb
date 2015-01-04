@@ -1,3 +1,5 @@
+require 'json'
+
 class AwsMfa
   attr_reader :aws_config_dir
 
