@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.summary      = s.description
   s.authors      = ['Brian Pitts']
   s.email        = 'brian.pitts@lonelyplanet.com'
-  s.files        = ['lib/aws_mfa.rb']
+  s.files        = ['lib/aws_mfa.rb', 'lib/aws_mfa/errors.rb']
   s.executables  = ['aws-mfa']
   s.homepage     = 'http://www.github.com/lonelyplanet/aws-mfa'
   s.license      = 'Apache-2.0'

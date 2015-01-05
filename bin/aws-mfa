@@ -5,6 +5,6 @@ require 'aws_mfa'
 begin
   aws_mfa = AwsMfa.new
   aws_mfa.execute
-rescue AwsMfa::Error => e
+rescue AwsMfa::Errors::Error => e
   abort e.message
 end
