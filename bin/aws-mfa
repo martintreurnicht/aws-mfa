@@ -2,5 +2,9 @@
 
 require 'aws_mfa'
 
-aws_mfa = AwsMfa.new
-aws_mfa.execute
+begin
+  aws_mfa = AwsMfa.new
+  aws_mfa.execute
+rescue AwsMfa::Error => e
+  puts e.message
+end

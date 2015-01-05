@@ -12,12 +12,12 @@ RSpec.describe 'AwsMfa' do
   describe '#initialize' do
     it 'exits when aws config is not found' do
       create_aws_binary
-      expect { subject }.to raise_error SystemExit
+      expect { subject }.to raise_error AwsMfa::ConfigurationNotFound
     end
 
     it 'exits when aws cli is not found' do
       create_aws_config
-      expect { subject }.to raise_error SystemExit
+      expect { subject }.to raise_error AwsMfa::CommandNotFound
     end
 
     it 'initializes when aws cli and config are both found' do

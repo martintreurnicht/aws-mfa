@@ -3,13 +3,19 @@ require 'json'
 class AwsMfa
   attr_reader :aws_config_dir
 
+  class Error < StandardError; end
+  class ConfigurationNotFound < Error; end
+  class CommandNotFound < Error; end
+  class DeviceNotFound < Error; end
+  class InvalidCode < Error; end
+
   def initialize
     validate_aws_installed
     @aws_config_dir = find_aws_config
   end
 
   def validate_aws_installed
-    abort 'Could not find the aws command' unless which('aws')
+    raise CommandNotFound, 'Could not find the aws command' unless which('aws')
   end
 
   def find_aws_config
@@ -22,7 +28,7 @@ class AwsMfa
     end
 
     unless File.readable?(aws_config_file)
-      abort 'Aws configuration not found. You must run `aws cli configure`'
+      raise ConfigurationNotFound, 'Aws configuration not found. You must run `aws cli configure`'
     end
 
     aws_config_dir
@@ -62,7 +68,7 @@ class AwsMfa
     if mfa_devices.any?
       mfa_devices.first.fetch('SerialNumber')
     else
-      abort 'No MFA devices were found for your account'
+      raise DeviceNotFound, 'No MFA devices were found for your account'
     end
   end
 
@@ -105,7 +111,7 @@ class AwsMfa
   def request_code_from_user
     puts 'Enter the 6-digit code from your MFA device:'
     code = $stdin.gets.chomp
-    abort 'That is an invalid MFA code' unless code =~ /^\d{6}$/
+    raise InvalidCode, 'That is an invalid MFA code' unless code =~ /^\d{6}$/
     code
   end
 
