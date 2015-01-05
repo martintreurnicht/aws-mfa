@@ -57,7 +57,7 @@ RSpec.describe 'AwsMfa' do
     end
 
     it 'loads arn from aws when file does not exist' do
-      allow(subject).to receive(:list_mfa_devices).and_return([{
+      allow(subject).to receive(:mfa_devices).and_return([{
         'SerialNumber' => 'foo'
       }])
       expect(subject.load_arn).to eq 'foo'
