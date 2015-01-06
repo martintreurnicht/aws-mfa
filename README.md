@@ -1,6 +1,7 @@
 # AWS-MFA
 
 [![Code Climate](https://codeclimate.com/repos/542b7941e30ba06a6101ef2b/badges/25d9c28493f8b29398d0/gpa.svg)](https://codeclimate.com/repos/542b7941e30ba06a6101ef2b/feed)
+[![Test Coverage](https://codeclimate.com/repos/542b7941e30ba06a6101ef2b/badges/25d9c28493f8b29398d0/coverage.svg)](https://codeclimate.com/repos/542b7941e30ba06a6101ef2b/feed)
 
 ## Introduction
 
