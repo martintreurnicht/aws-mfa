@@ -1,3 +1,6 @@
+require 'simplecov'
+SimpleCov.start
+
 require 'rspec'
 require 'fakefs/spec_helpers'
 require_relative '../lib/aws_mfa'
