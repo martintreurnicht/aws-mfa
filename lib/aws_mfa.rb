@@ -23,7 +23,7 @@ class AwsMfa
     end
 
     unless File.readable?(aws_config_file)
-      raise Errors::ConfigurationNotFound, 'Aws configuration not found. You must run `aws cli configure`'
+      raise Errors::ConfigurationNotFound, 'Aws configuration not found. You must run `aws configure`'
     end
 
     aws_config_dir
