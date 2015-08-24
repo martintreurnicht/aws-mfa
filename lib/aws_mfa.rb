@@ -51,6 +51,7 @@ class AwsMfa
       write_arn_to_file(arn_file, arn)
     end
 
+    arn.strip! if arn.respond_to?(:strip!)
     arn
   end
 
